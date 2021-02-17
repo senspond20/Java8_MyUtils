@@ -16,6 +16,9 @@ import java.util.Map;
 
 import com.sens.utils.CSVFileVo.Builder;
 
+enum EncodingType { // 인코딩 타입
+    UTF8, EUCKR, Cp1252
+}
 /**
  * 
  */
@@ -23,9 +26,9 @@ interface CSVUtilsInterface {
 
     public CSVFileVo loadCSV(Path path, String rgx) throws IOException;
 
-    public Object[][] convertCSVListToMatrix(List<Object> list);
+    public Object[][] convertCSVToMatrix(CSVFileVo csvfile);
 
-    public boolean saveCSV(Path path, String rgx);
+    public boolean saveCSV(Path path, String rgx, List<Object> list);
 }
 
 /**
@@ -91,23 +94,25 @@ public class CSVUtils implements CSVUtilsInterface {
                        .data(list)
                        .build();   
     }
-   /**
+    /**
      * @apiNote
      */
     @Override
-    public Object[][] convertCSVListToMatrix(List<Object> list) {
-        return list.stream()
-                   .map(item -> ((Collection<?>) item).stream().toArray())
-                   .toArray(Object[][]::new);
+    public Object[][] convertCSVToMatrix(CSVFileVo csvfile) {
+        return csvfile.getData()
+                      .stream()
+                      .map(item -> ((Collection<?>) item).stream().toArray())
+                      .toArray(Object[][]::new);
     }
 
+    
    /**
      * @apiNote
      */
     @Override
-    public boolean saveCSV(Path path, String rgx) {
+    public boolean saveCSV(Path path, String rgx, List<Object> list) {
         // TODO Auto-generated method stub
         return false;
     }
-    
+
 }

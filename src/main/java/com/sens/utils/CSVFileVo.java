@@ -10,15 +10,31 @@ public class CSVFileVo {
     private List<Object> data;
 
     public CSVFileVo(){}
+
+    /* Getter */
+    public File getFile(){
+        return this.file;
+    }
+    public int getMaxRow(){
+        return this.maxRow;
+    }
+    public int getMaxCol(){
+        return this.maxCol;
+    }
+    public List<Object> getData(){
+        return this.data;
+    }
+
+    /* builder 패턴으로 setter 대체 */
     private CSVFileVo(Builder builder) {
         this.file   = builder.file;
         this.maxRow = builder.maxRow;
         this.maxCol = builder.maxCol;
         this.data   = builder.data;
     }
-
+  
     public static class Builder{
-        /* 필수 */
+        /* 필수없음/ all 선택 */
         private File file = null;
         private int maxRow = 0;
         private int maxCol = 0;
