@@ -28,7 +28,25 @@ interface ExcelFileUtilsInteface{
 }
 
 /**
- * poi 라이브러리 의존성
+ * @name ExcelFileUtils
+ * -- poi 라이브러리 의존성
+ * <!-- 엑셀(xls) -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>4.1.2</version>
+    </dependency>
+    <!-- 엑셀 (xlsx) -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>4.1.2</version>
+    </dependency>
+ *
+ *           Workbook         Sheet       Row        Cell
+ *  xsl  : HSSFWorkbook -> HSSFSheet -> HSSFRow -> HSSFCell -> 값 획득
+ *  xslx : XSSFWorkbook -> XSSFSheet -> XSSFRow -> XSSFCell -> 값 획득
+ *
  */
 public class ExcelFileUtils {
     
@@ -40,7 +58,6 @@ public class ExcelFileUtils {
         try (   // try ~ catch ~ resources
                 FileInputStream fis = new FileInputStream(file);
             ) {
-        
                 Workbook workbook = null;
                 String ext = BaseFileUtils.getExtFromFileName(file.getName());
                 if(ext.equals("xlsx")){
@@ -80,7 +97,7 @@ public class ExcelFileUtils {
         Builder builder = new DataSet.Builder();
         builder.maxRow(sheet.getPhysicalNumberOfRows());
         builder.maxCol(1);
-    
+        
 
         return null;
 
