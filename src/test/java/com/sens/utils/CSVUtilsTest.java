@@ -60,7 +60,7 @@ public class CSVUtilsTest {
         }
         System.out.println();
 
-        // 데이터 출력
+        //데이터 출력
         for(int i = 0; i < data.length; i ++){
             for(int j = 0; j < data[i].length; j++){
                 System.out.printf("%s\t",data[i][j]); 

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ interface CSVUtilsInterface {
     public Object[][] convertCSVToMatrix(CSVFileVo csvfile);
 
     /* Object List 을 CSV 파일로 저장한다. */
-    public boolean saveCSV(Path path, String rgx, List<Object> list, Character character, boolean isHeader);
+    public boolean saveCSV(Path path, String rgx, List<Object> list, Character character, boolean isHeader, boolean isAppend) throws IOException;
 
     /* 2차원 배열을 CSV 파일로 저장한다. */
     public boolean saveCSV(Path path, String rgx, Object[][] data, boolean isHeader);
@@ -102,7 +103,7 @@ public class CSVUtils implements CSVUtilsInterface {
             int tempCol = 0;
             // BufferedReader 에서 데이터를 읽어오면서 최대 행과 열수를 계산하며 list에 담는다.
             while ((line = br.readLine()) != null) {
-                Object curr[] = line.split(rgx);
+                String curr[] = line.split(rgx);
                 tempCol = curr.length;
                 // 현재 열의 크기가 더 크면 maxCol에 담는다.
                 if (tempCol > maxCol) {
@@ -143,20 +144,23 @@ public class CSVUtils implements CSVUtilsInterface {
 
     
     /**
-     * @name    saveCSV
-     * @apiNote                  : CSV 파일을 읽어온다.
-     * @param   path             : 파일명을 포함한 파일 경로
-     * @param   rgx              : 구분자
-     * @param   isHeader         : 해더 포함여부
-     * @return  boolean
+     * @name saveCSV
+     * @apiNote : CSV 파일을 읽어온다.
+     * @param path     : 파일명을 포함한 파일 경로
+     * @param rgx      : 구분자
+     * @param isHeader : 해더 포함여부
+     * @param isAppend : 이어쓰기 여부
+     * @return boolean
+     * @throws IOException
      */
     @Override
-    public boolean saveCSV(Path path, String rgx, List<Object> list, Character character, boolean isHeader) {
+    public boolean saveCSV(Path path, String rgx, List<Object> list, Character character, boolean isHeader,
+            boolean isAppend) throws IOException {
         
         
-        //BaseFileUtils.fileWrite(file, data, rollingWrite)
+        System.out.println("list : " + list);
 
-        return false;
+        return BaseFileUtils.fileSaveUsingLegarcy(path.toFile(), "안녕하세요", StandardCharsets.UTF_8, isAppend);
     }
 
     /**
@@ -169,7 +173,9 @@ public class CSVUtils implements CSVUtilsInterface {
      */
     @Override
     public boolean saveCSV(Path path, String rgx, Object[][] data, boolean isHeader) {
-        // TODO Auto-generated method stub
+        
+
+      
         return false;
     }
 
