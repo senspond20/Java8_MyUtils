@@ -1,7 +1,6 @@
 package com.sens.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class JsonUtils {
 
     public static Map<String,Object> getMapFromJsonObject(JSONObject jsonObject )
     {
-        Map<String,Object> map = new HashMap<String,Object>();
+        // Map<String,Object> map = new HashMap<String,Object>();
     
         jsonObject.toString();
         

@@ -27,6 +27,21 @@ public class BaseFileUtilsTest {
         System.out.printf("%s -[%d%s]\n", "수행시간" ,after-before,"ms");
     }
 
+    @Test
+    void test_인코딩charset체크() throws IOException {
+        final Path path1 = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", "bmt.csv");
+        System.out.println("file1 : " + BaseFileUtils.findFileEncoding(path1.toFile()));
+
+        final Path path2 = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", "korean2.csv");
+        System.out.println("file2 : " + BaseFileUtils.findFileEncoding(path2.toFile()));
+    }
+
+    @Test
+    void test_파일인코딩UTF8변환() throws IOException {
+        final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", "korean2.csv");
+        BaseFileUtils.fileConvertUTF8(path.toFile(), false);
+    }
+
    /**
      * 파일 저장 테스트1
      */

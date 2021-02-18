@@ -75,7 +75,7 @@ public class SystemAccessUtilsTest {
 
     @Test
     void test4() throws IOException, InterruptedException {
-        String[] command = new String[] { "echo", "hello" };
+        // String[] command = new String[] { "echo", "hello" };
         //sysUtils.byRuntime(command);
         // sysUtils.byProcessBuilder(command);
         // sysUtils.byProcessBuilderRedirect(command);

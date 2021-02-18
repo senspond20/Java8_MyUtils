@@ -39,6 +39,15 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet -->
+    <!-- file의 charset 알아오기-->
+    <dependency>
+        <groupId>com.googlecode.juniversalchardet</groupId>
+        <artifactId>juniversalchardet</artifactId>
+        <version>1.0.3</version>
+    </dependency>
+
+
     <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
     <!-- 엑셀(xls) -->
     <dependency>

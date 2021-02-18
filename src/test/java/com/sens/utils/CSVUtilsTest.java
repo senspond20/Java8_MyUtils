@@ -2,7 +2,6 @@ package com.sens.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -15,33 +14,48 @@ import org.junit.jupiter.api.Test;
  */
 public class CSVUtilsTest {
 
-    final String fileName = "bmt.csv";
+    final String fileName = "korean2.csv";
     final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
     final CSVUtils cs = CSVUtils.getInstance();
     CSVFileVo csv = null;
-    
     @BeforeEach
     void setup() throws IOException {
         csv = cs.loadCSV(path, ",", true);
     }
-
     /**
      * loadCSV 테스트 
      * @throws IOException
      */
     @Test
-    void test1() throws IOException {
-
+    void test_CSV읽어오기() throws IOException {
        File file = csv.getFile();
+
        // 파일 정보
        System.out.printf("FileName [%s] %s\n",file.getName() ,file.getAbsolutePath());
        System.out.printf("MaxRow[%d] MaxCol[%d]\n",  csv.getMaxRow(), csv.getMaxCol() );
-
        // 해더정보
        System.out.println("Header : " + Arrays.toString(csv.getHeader()));
-    
        // 데이터
        System.out.println("Data : " + csv.getData().toString());
+       
+    }
+
+        /**
+     * loadCSV 테스트 
+     * @throws IOException
+     */
+    @Test
+    void test_CSV읽어오기_한글() throws IOException {
+    //    File file = csv.getFile();
+                
+       // 파일 정보
+    //    System.out.printf("FileName [%s] %s\n",newFile.getName() ,newFile.getAbsolutePath());
+    //    System.out.printf("MaxRow[%d] MaxCol[%d]\n",  csv.getMaxRow(), csv.getMaxCol() );
+    //    // 해더정보
+    //    System.out.println("Header : " + Arrays.toString(csv.getHeader()));
+    //    // 데이터
+    //    System.out.println("Data : " + csv.getData().toString());
+       
     }
 
     /**

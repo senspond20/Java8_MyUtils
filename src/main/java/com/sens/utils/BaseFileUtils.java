@@ -1,15 +1,20 @@
 package com.sens.utils;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import org.mozilla.universalchardet.UniversalDetector;
 
 /**
  * static 
@@ -83,6 +88,83 @@ public class BaseFileUtils {
         return isSucess;
     }
 
+    /**
+     * @apiNote  file의 Charset을 알아온다. - 라이브러리 의존성 com.googlecode.juniversalchardet
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static Charset findFileEncoding(File file) throws IOException {
+
+        /*
+        FileInputStream fis = new FileInputStream(file);
+        System.out.println(System.getProperty("file.encoding"));
+
+        byte[] CODE = new byte[4];
+        fis.read(CODE, 0, 4);
+        if((CODE[0] & 0xFF) == 0xEF && (CODE[1] & 0xFF) == 0xBB && (CODE[2] & 0xFF) == 0xBF ){
+            System.out.println("UTF-8");
+        }
+        fis.close();
+        return true;*/
+        Charset charset = null;
+        byte[] buf = new byte[4096]; 
+        try (
+              FileInputStream fis = new FileInputStream(file); 
+        ){
+            UniversalDetector detector = new UniversalDetector(null); 
+            int nread; 
+            while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+                 detector.handleData(buf, 0, nread); 
+                } 
+                detector.dataEnd(); 
+                String encoding = detector.getDetectedCharset(); 
+                if (encoding != null) { 
+                    charset = Charset.forName(encoding);
+                }else { 
+                    throw new RuntimeException("파일 Chaset Find에 실패하였습니다.");
+                } 
+                detector.reset();
+                fis.close();
+        }catch(IOException e){
+            throw new IOException(e.getMessage());
+        }
+        return charset;
+    }
+    /**
+     * @apiNote  파일을 읽어서 utf8 로 변환해서 
+     * @param file        읽어올 file 객체
+     * @param isOverWrite 원본파일에 덮어쓰며 저장할 것인지 새로운 파일생성으로 이름에-utf8을 붙여서 저장할것인지 여부
+     * @return
+     * @throws IOException
+     */
+    public static boolean fileConvertUTF8(File file, boolean isOverWrite) throws IOException {
+
+        if (!file.exists()) {
+            throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
+        }
+        String origin = file.getName();
+        String dotExt = origin.substring(origin.lastIndexOf("."), origin.length());
+        String newFile = origin.substring(0, origin.lastIndexOf(".")).concat("-utf8").concat(dotExt);
+
+        try ( // try ~ catch ~ resources
+  
+            FileInputStream fis = new FileInputStream(file);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(newFile), StandardCharsets.UTF_8));
+        ){
+            String line ="";
+            while ((line = br.readLine()) != null) {
+                bw.append(line);
+                bw.append("\n");
+            }
+        }
+        catch (IOException e) {
+            throw new IOException("파일 UTF8 변환에 실패하였습니다.");
+        }
+        
+        return true;
+    }
     /**
      * @apiNote                 : 파일저장 레가시 코드 : 
      * @param file              : file객체

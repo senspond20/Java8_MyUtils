@@ -5,15 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.sens.utils.CSVFileVo.Builder;
 
@@ -79,11 +77,13 @@ public class CSVUtils implements CSVUtilsInterface {
     }
     /**
      * @name    loadCSV
-     * @apiNote                 : CSV 파일을 읽어온다.
+     * @apiNote                 : CSV 파일을 읽어온다. 
      * @param   path            : 파일명을 포함한 파일 경로
-     * @param   rgx             : 구분자
-     * @param   isHeader        : 해더 포함여부
-     * @return  CSVFileVo
+     * @param   rgx             : 구분자 (보편적으로 ","를 구분자로 사용됨)
+     * @param   isHeader        : 해더 존재여부 
+     *                          (false이면 CSVFileVo의 header는 null이 리턴되며 CSVFileVo data에 해더까지 같이 담아온다 
+     *                           , true일시 해더까지 포함되서 maxRow 가 계산)
+     * @return  CSVFileVo       : File, maxRow, maxCol, header, data 
      */
     @Override
     public CSVFileVo loadCSV(Path path, String rgx, boolean isHeader) throws IOException {
@@ -92,13 +92,16 @@ public class CSVUtils implements CSVUtilsInterface {
         if (!file.exists()) {
             throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
         }
+        // 파일 인코딩된 charset을 알아온다.
+        Charset charset = BaseFileUtils.findFileEncoding(file);
         int maxRow = 0, maxCol = 0;
  
         Builder builder = new CSVFileVo.Builder();
         List<Object> list = new ArrayList<Object>();
  
         try ( // try ~ catch ~ resources
-            BufferedReader br = new BufferedReader(new FileReader(file));) {
+       
+            BufferedReader br = new BufferedReader(new FileReader(file, charset));) {
             String line = "";
             int tempCol = 0;
             // BufferedReader 에서 데이터를 읽어오면서 최대 행과 열수를 계산하며 list에 담는다.
@@ -130,7 +133,7 @@ public class CSVUtils implements CSVUtilsInterface {
 
     /**
      * @name   convertCSVToMatrix
-     * @apiNote                  : CSV 파일을 읽어온다.
+     * @apiNote                  : CSV 파일을 읽어온다. -> 레가시 코드로 다시 작성해볼것
      * @param  csvfile           : CSVFileVo 객체
      * @return Object[][]
      */
@@ -140,6 +143,7 @@ public class CSVUtils implements CSVUtilsInterface {
                       .stream()
                       .map(item -> ((Collection<?>) item).stream().toArray())
                       .toArray(Object[][]::new);
+        
     }
 
     
