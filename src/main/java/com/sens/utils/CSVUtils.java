@@ -34,7 +34,7 @@ interface CSVUtilsInterface {
     public Object[][] convertCSVToMatrix(CSVFileVo csvfile);
 
     /* Object List 을 CSV 파일로 저장한다. */
-    public boolean saveCSV(Path path, String rgx, List<Object> list, boolean isHeader);
+    public boolean saveCSV(Path path, String rgx, List<Object> list, Character character, boolean isHeader);
 
     /* 2차원 배열을 CSV 파일로 저장한다. */
     public boolean saveCSV(Path path, String rgx, Object[][] data, boolean isHeader);
@@ -69,8 +69,9 @@ public class CSVUtils implements CSVUtilsInterface {
     */
     @Override
     public boolean isCSVFileCheck(String fileName) {
-        String last = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-        if (!last.toLowerCase().equals("csv")) {
+        String ext = BaseFileUtils.getExtFromFileName(fileName);
+       // String ext = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+        if (!ext.toLowerCase().equals("csv")) {
            return false;
         }
         return true;
@@ -150,8 +151,11 @@ public class CSVUtils implements CSVUtilsInterface {
      * @return  boolean
      */
     @Override
-    public boolean saveCSV(Path path, String rgx, List<Object> list, boolean isHeader) {
-        // TODO Auto-generated method stub
+    public boolean saveCSV(Path path, String rgx, List<Object> list, Character character, boolean isHeader) {
+        
+        
+        //BaseFileUtils.fileWrite(file, data, rollingWrite)
+
         return false;
     }
 
@@ -169,6 +173,9 @@ public class CSVUtils implements CSVUtilsInterface {
         return false;
     }
 
-  
+
+    public void convertChartset(){
+
+    }
 
 }
