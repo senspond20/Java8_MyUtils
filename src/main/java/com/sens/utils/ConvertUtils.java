@@ -1,17 +1,77 @@
 package com.sens.utils;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class JsonUtils {
-    
+// https://futurecreator.github.io/2018/08/26/java-8-streams/
+
+public class ConvertUtils {
+
+    public ConvertUtils(){ }
+
+    /**
+     * 이차원 배열 T[][] array 을 List<List<T>> 객체로 변환 1
+     * 
+     * @param <T>
+     * @param array
+     * @return
+     */
+    public <T> List<List<T>> toNestedList(T[][] array) {
+        return Arrays.stream(array)
+                     .map(Arrays::asList)
+                     .collect(Collectors.toList());
+    }
+
+    /**
+     * 이차원 배열 T[][] array 을 List<List<T>> 객체로 변환 2 - 자바 구버전 호환성
+     * @param <T>
+     * @param array
+     * @return
+     */
+    public <T> List<List<T>> asLists(T array[][]) { 
+        Objects.requireNonNull(array); 
+        return new AbstractList<List<T>>() { 
+            @Override public List<T> get(int index) { 
+                T[] a = array[index]; if (a == null) { 
+                    return Collections.emptyList(); 
+                } return Arrays.asList(a); 
+            } @Override public int size() { 
+                return array.length; 
+            } 
+        }; 
+    }
+
+
+    /**
+     * @name toNestedArray
+     * @apiNote : CSV 파일을 읽어온다. 
+     * @param csvfile :
+     * @return Object[][]
+     */
+    public int[][] test(List<String> list){
+        int[][] array = new int[list.size()][list.get(0).length()];
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = 0; j < list.get(i).length(); j++) {
+                array[i][j] = list.get(i).charAt(j)-'0';
+            }
+        }
+        return array;
+    }
+
     /**
      * Map을 json으로 변환한다.
      *

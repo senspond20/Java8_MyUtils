@@ -7,8 +7,8 @@ public class CSVFileVo {
     private File file;
     private int maxRow;
     private int maxCol;
-    private Object[] header;
-    private List<Object> data;
+    private List<Object> header;
+    private List<List<Object>> data;
 
     public CSVFileVo(){}
 
@@ -22,10 +22,10 @@ public class CSVFileVo {
     public int getMaxCol(){
         return this.maxCol;
     }
-    public Object[] getHeader(){
+    public List<Object> getHeader(){
         return this.header;
     }
-    public List<Object> getData(){
+    public List<List<Object>> getData(){
         return this.data;
     }
 
@@ -44,8 +44,8 @@ public class CSVFileVo {
         private File file = null;
         private int maxRow = 0;
         private int maxCol = 0;
-        private Object[] header = null;
-        private List<Object> data = null;
+        private List<Object> header = null;
+        private List<List<Object>> data = null;
 
         public Builder(){  }
         /**
@@ -64,11 +64,11 @@ public class CSVFileVo {
             return this;
         }
 
-        public Builder header(Object[] header) {
+        public Builder header(List<Object> header) {
             this.header = header;
             return this;
         }
-        public Builder data(List<Object> data) {
+        public Builder data(List<List<Object>> data) {
             this.data = data;
             return this;
         }

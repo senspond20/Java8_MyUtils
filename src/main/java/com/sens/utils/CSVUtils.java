@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.sens.utils.CSVFileVo.Builder;
 
@@ -97,25 +98,33 @@ public class CSVUtils implements CSVUtilsInterface {
         int maxRow = 0, maxCol = 0;
  
         Builder builder = new CSVFileVo.Builder();
-        List<Object> list = new ArrayList<Object>();
+        List<List<Object>> list = new ArrayList<List<Object>>();
  
         try ( // try ~ catch ~ resources
        
             BufferedReader br = new BufferedReader(new FileReader(file, charset));) {
             String line = "";
             int tempCol = 0;
+            
+            // Object[][] body = new Object[][];
+            // System.out.println("@@@ :" + br.lines().count());
+            
             // BufferedReader 에서 데이터를 읽어오면서 최대 행과 열수를 계산하며 list에 담는다.
             while ((line = br.readLine()) != null) {
-                String curr[] = line.split(rgx);
+                Object curr[] = line.split(rgx);
                 tempCol = curr.length;
                 // 현재 열의 크기가 더 크면 maxCol에 담는다.
                 if (tempCol > maxCol) {
                     maxCol = tempCol;
                 }
                 if(isHeader && maxRow == 0){
-                    builder.header(curr);
+                    // builder.header(curr);
+                    builder.header(Arrays.asList(curr));
+                  
                 }else{
                     list.add(Arrays.asList(curr));
+                    // list.add(Arrays.asList(curr));
+                    // body[maxRow] = curr;
                 }
                 maxRow++;
             }
@@ -131,6 +140,47 @@ public class CSVUtils implements CSVUtilsInterface {
                        .build();   
     }
 
+
+    public CSVFileVo loadCSV8(Path path, String rgx, boolean isHeader) throws IOException {
+
+        File file = new File(path.toUri());
+        if (!file.exists()) {
+            throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
+        }
+        // 파일 인코딩된 charset을 알아온다.
+        Charset charset = BaseFileUtils.findFileEncoding(file);
+        int maxRow = 0, maxCol = 0;
+ 
+        Builder builder = new CSVFileVo.Builder();
+        List<Object> list = new ArrayList<Object>();
+ 
+        try ( // try ~ catch ~ resources
+       
+            BufferedReader br = new BufferedReader(new FileReader(file, charset));) {
+            String line = "";
+            int tempCol = 0;
+            
+            // Object[][] body = new Object[][];
+            // System.out.println("@@@ :" + br.lines().count());
+            
+            Stream<String> stream = br.lines();
+            Object[][] body = new Object[(int) stream.count()][];
+
+        
+            
+            br.close();
+        } catch (IOException e) {
+            throw new IOException("파일을 불러오는데 실패하였습니다.");
+        }
+
+        return  builder.file(file)
+                       .maxRow(maxRow)
+                       .maxCol(maxCol)
+                       .data(list)
+                       .build();   
+    }
+
+
     /**
      * @name   convertCSVToMatrix
      * @apiNote                  : CSV 파일을 읽어온다. -> 레가시 코드로 다시 작성해볼것
@@ -139,10 +189,33 @@ public class CSVUtils implements CSVUtilsInterface {
      */
     @Override
     public Object[][] convertCSVToMatrix(CSVFileVo csvfile) {
-        return csvfile.getData()
+
+       /* List<List<Object>> list = new ArrayList<List<Object>>();
+        
+        list.add(Arrays.asList("가나다", "안녕", "가을", 1110, 123, 533));
+        list.add(Arrays.asList("Java", "C#", 1011, "Spring","안녕이"));
+        list.add(Arrays.asList("문자열", 1010, "서울시", "11AC"));
+        list.add(Arrays.asList(1.97, "가을이", "하늘이"));
+
+        Object[][] array  = list.stream()
+                                .map(item -> item.stream().toArray())
+                                .toArray(Object[][]::new);*/
+
+        //List<Object> list = new ArrayList<List<Object>>();
+       /* return csvfile.getData()
                       .stream()
                       .map(item -> ((Collection<?>) item).stream().toArray())
-                      .toArray(Object[][]::new);
+                      .toArray(Object[][]::new); */
+        
+        // 행은 고정이고 열은 가변인 동적배열
+        List<List<Object>> list = csvfile.getData();
+        Object[][] array = new Object[list.size()][]; 
+
+        // 배열에 집어넣기
+        for (int i = 0; i < array.length; i++) {
+            array[i] = list.get(i).toArray();
+        }
+        return array;
         
     }
 
@@ -161,10 +234,12 @@ public class CSVUtils implements CSVUtilsInterface {
     public boolean saveCSV(Path path, String rgx, List<Object> list, Character character, boolean isHeader,
             boolean isAppend) throws IOException {
         
+        File file = path.toFile();
+        Charset charset = BaseFileUtils.findFileEncoding(file);
+
         
         System.out.println("list : " + list);
-
-        return BaseFileUtils.fileSaveUsingLegarcy(path.toFile(), "안녕하세요", StandardCharsets.UTF_8, isAppend);
+        return BaseFileUtils.fileSaveUsingLegarcy(file, "안녕하세요", charset, isAppend);
     }
 
     /**
@@ -178,7 +253,9 @@ public class CSVUtils implements CSVUtilsInterface {
     @Override
     public boolean saveCSV(Path path, String rgx, Object[][] data, boolean isHeader) {
         
+        for(int i =0; i < data.length; i++){
 
+        }
       
         return false;
     }

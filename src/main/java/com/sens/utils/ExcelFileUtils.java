@@ -9,6 +9,7 @@ import com.sens.utils.model.ExcelType;
 import com.sens.utils.model.ExcelWorkBook;
 import com.sens.utils.model.DataSet.Builder;
 
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -63,10 +64,10 @@ public class ExcelFileUtils {
                 }
                 else if(ext.equals("xls")){
                     // workbook = new 
-                    vo.setExcelType(ExcelType.CSV);
+                    vo.setExcelType(ExcelType.XLS);
                 }
                 else if(ext.equals("csv")){
-
+                    vo.setExcelType(ExcelType.CSV);
                 }else{
                     throw new RuntimeException("지원되지 않는 형식의 파일입니다.");
                 }
@@ -89,6 +90,8 @@ public class ExcelFileUtils {
         
         if(type.equals(ExcelType.XLSX)){
             sheet = (XSSFSheet) workbook.getSheetAt(sheetPageNo);
+        }else if(type.equals(ExcelType.XLS)){
+            sheet = (HSSFSheet) workbook.getSheetAt(sheetPageNo);
         }
         
         Builder builder = new DataSet.Builder();

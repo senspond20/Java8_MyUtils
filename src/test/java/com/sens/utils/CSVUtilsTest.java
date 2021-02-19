@@ -16,11 +16,12 @@ public class CSVUtilsTest {
 
     final String fileName = "korean2.csv";
     final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
-    final CSVUtils cs = CSVUtils.getInstance();
+    CSVUtils cs = null;
     CSVFileVo csv = null;
+    
     @BeforeEach
     void setup() throws IOException {
-        csv = cs.loadCSV(path, ",", true);
+        cs = CSVUtils.getInstance();
     }
     /**
      * loadCSV 테스트 
@@ -28,6 +29,7 @@ public class CSVUtilsTest {
      */
     @Test
     void test_CSV읽어오기() throws IOException {
+       csv = cs.loadCSV(path, ",", true);
        File file = csv.getFile();
 
        // 파일 정보
@@ -39,6 +41,22 @@ public class CSVUtilsTest {
        System.out.println("Data : " + csv.getData().toString());
        
     }
+
+    @Test
+    void test_CSV읽어오기8() throws IOException {
+       csv = cs.loadCSV8(path, ",", true);
+       File file = csv.getFile();
+
+       // 파일 정보
+       System.out.printf("FileName [%s] %s\n",file.getName() ,file.getAbsolutePath());
+       System.out.printf("MaxRow[%d] MaxCol[%d]\n",  csv.getMaxRow(), csv.getMaxCol() );
+       // 해더정보
+       System.out.println("Header : " + Arrays.toString(csv.getHeader()));
+       // 데이터
+       System.out.println("Data : " + csv.getData().toString());
+       
+    }
+
 
         /**
      * loadCSV 테스트 
