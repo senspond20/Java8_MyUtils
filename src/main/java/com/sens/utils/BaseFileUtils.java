@@ -193,7 +193,6 @@ public class BaseFileUtils {
             bw =  new BufferedWriter(osw);
 
             bw.write(data);
-            isSucess = true;
         }catch(IOException e){
             throw new IOException("파일 저장에 실패하였습니다.");
         }finally{
@@ -201,7 +200,7 @@ public class BaseFileUtils {
                 bw.close();
                 osw.close();
                 fos.close();
-                isSucess = false;
+                isSucess = true;
             } catch (IOException e) {
                 throw new IOException("파일 저장후 파일IO객체를 close하는데 실패하였습니다.");
             }
@@ -210,8 +209,11 @@ public class BaseFileUtils {
     }
 
 
+    public static File fileRead(File file, Charset charset) throws IOException{
+        if (!file.exists()) {
+            throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
+        }
 
-    public static File fileRead(){
         return null;
     }
 

@@ -51,9 +51,15 @@ public class HtmlTableMaker {
 
     /* list로 생성하는것들 */
     public String createHeaderFromList(List<Object> header){
+
+        header.stream().map(i -> cde(TH, i)).toArray();
+        
         return cde(THEAD, cde(TR, cde(TH, header)));
     }
 
+    // public String createBodyFromList(List<List<Object>> body){
+       
+    // }
 
 
 }
