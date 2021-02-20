@@ -1,13 +1,16 @@
 package com.sens.utils;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class CSVFileVo {
     private File file;
+    private Charset charset;
     private int maxRow;
     private int maxCol;
-    private List<Object> header;
+    private boolean header;
     private List<List<Object>> data;
 
     public CSVFileVo(){}
@@ -16,13 +19,16 @@ public class CSVFileVo {
     public File getFile(){
         return this.file;
     }
+    public Charset getCharset(){
+        return this.charset;
+    }
     public int getMaxRow(){
         return this.maxRow;
     }
     public int getMaxCol(){
         return this.maxCol;
     }
-    public List<Object> getHeader(){
+    public boolean getHeader(){
         return this.header;
     }
     public List<List<Object>> getData(){
@@ -32,6 +38,7 @@ public class CSVFileVo {
     /* builder 패턴 */
     private CSVFileVo(Builder builder) {
         this.file   = builder.file;
+        this.charset = builder.charset;
         this.maxRow = builder.maxRow;
         this.maxCol = builder.maxCol;
         this.header = builder.header;
@@ -42,9 +49,10 @@ public class CSVFileVo {
         
         /* 필수없음/ all 선택 */
         private File file = null;
+        private Charset charset = StandardCharsets.UTF_8;
         private int maxRow = 0;
         private int maxCol = 0;
-        private List<Object> header = null;
+        private boolean header = false;
         private List<List<Object>> data = null;
 
         public Builder(){  }
@@ -55,6 +63,10 @@ public class CSVFileVo {
             this.file = file;
             return this;    
         }
+        public Builder charset(Charset charset){
+            this.charset = charset;
+            return this;
+        }
         public Builder maxRow(int maxRow) {
             this.maxRow = maxRow;
             return this;
@@ -64,7 +76,7 @@ public class CSVFileVo {
             return this;
         }
 
-        public Builder header(List<Object> header) {
+        public Builder header(boolean header) {
             this.header = header;
             return this;
         }

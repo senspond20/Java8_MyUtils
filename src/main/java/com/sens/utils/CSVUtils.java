@@ -81,9 +81,7 @@ public class CSVUtils implements CSVUtilsInterface {
      * @apiNote                 : CSV 파일을 읽어온다. 
      * @param   path            : 파일명을 포함한 파일 경로
      * @param   rgx             : 구분자 (보편적으로 ","를 구분자로 사용됨)
-     * @param   isHeader        : 해더 존재여부 
-     *                          (false이면 CSVFileVo의 header는 null이 리턴되며 CSVFileVo data에 해더까지 같이 담아온다 
-     *                           , true일시 해더까지 포함되서 maxRow 가 계산)
+     * @param   isHeader        : 해더 존재여부 true, false
      * @return  CSVFileVo       : File, maxRow, maxCol, header, data 
      */
     @Override
@@ -98,16 +96,13 @@ public class CSVUtils implements CSVUtilsInterface {
         int maxRow = 0, maxCol = 0;
  
         Builder builder = new CSVFileVo.Builder();
-        List<List<Object>> list = new ArrayList<List<Object>>();
+        List<List<Object>> data = new ArrayList<List<Object>>();
  
         try ( // try ~ catch ~ resources
        
             BufferedReader br = new BufferedReader(new FileReader(file, charset));) {
             String line = "";
             int tempCol = 0;
-            
-            // Object[][] body = new Object[][];
-            // System.out.println("@@@ :" + br.lines().count());
             
             // BufferedReader 에서 데이터를 읽어오면서 최대 행과 열수를 계산하며 list에 담는다.
             while ((line = br.readLine()) != null) {
@@ -117,15 +112,7 @@ public class CSVUtils implements CSVUtilsInterface {
                 if (tempCol > maxCol) {
                     maxCol = tempCol;
                 }
-                if(isHeader && maxRow == 0){
-                    // builder.header(curr);
-                    builder.header(Arrays.asList(curr));
-                  
-                }else{
-                    list.add(Arrays.asList(curr));
-                    // list.add(Arrays.asList(curr));
-                    // body[maxRow] = curr;
-                }
+                data.add(Arrays.asList(curr));
                 maxRow++;
             }
             br.close();
@@ -134,9 +121,11 @@ public class CSVUtils implements CSVUtilsInterface {
         }
 
         return  builder.file(file)
+                       .charset(charset)
                        .maxRow(maxRow)
                        .maxCol(maxCol)
-                       .data(list)
+                       .header(isHeader)
+                       .data(data)
                        .build();   
     }
 

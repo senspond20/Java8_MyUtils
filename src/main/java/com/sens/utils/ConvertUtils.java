@@ -55,23 +55,6 @@ public class ConvertUtils {
         }; 
     }
 
-
-    /**
-     * @name toNestedArray
-     * @apiNote : CSV 파일을 읽어온다. 
-     * @param csvfile :
-     * @return Object[][]
-     */
-    public int[][] test(List<String> list){
-        int[][] array = new int[list.size()][list.get(0).length()];
-        for (int i = 0; i < list.size(); i++) {
-            for (int j = 0; j < list.get(i).length(); j++) {
-                array[i][j] = list.get(i).charAt(j)-'0';
-            }
-        }
-        return array;
-    }
-
     /**
      * Map을 json으로 변환한다.
      *
@@ -122,10 +105,10 @@ public class ConvertUtils {
     }
     /**
      * 
-     * @param jsonArrayStr
+     * @param jsonArrayStr - 
      * @return
      */
-    public List<?> jsonArraytoListmap(String jsonArrayStr){
+    public List<?> jsonArraytoListmapTest(String jsonArrayStr){
 
         List<Map<String,Object>> list = new ArrayList<>();    
         Pattern pattern = Pattern.compile("\\{[^\\{\\}]*\\}");  // { } 리스트 
