@@ -124,8 +124,8 @@ public class CSVUtilsTest {
         // save.csv 파일을 불러와서 데이터 이어쓰기
         CSVFileVo csvFile = cs.loadCSV(path, "|", true);
         List<List<Object>> appendData = new ArrayList<List<Object>>();
-        appendData.add(Arrays.asList("이어쓰기1", "안녕", "이어써", 1110, 123, 533));
-        appendData.add(Arrays.asList("Java", "C#", 1011, "Spring","안녕이"));
+        appendData.add(Arrays.asList("이어쓰기1", "안녕", "이어써", 1110, 123, 533,45454));
+        appendData.add(Arrays.asList("Java", "C#", 1011, "Spring","안녕이",54545,454545,45454,45454));
 
        // save2.csv 에다가 appendData 를 이어쓰기
         csvFile = cs.saveCSVAppend(csvFile, appendData);

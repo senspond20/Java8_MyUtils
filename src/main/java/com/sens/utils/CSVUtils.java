@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.sens.utils.CSVFileVo.Builder;
 
@@ -43,19 +42,21 @@ interface CSVUtilsInterface {
      /* 기존 CSV 파일에 데이터를 이어서 저장한다 */
     public CSVFileVo saveCSVAppend(CSVFileVo csv, List<List<Object>> appendData) throws IOException;
 
+    /* CSVFileVo의 구분자를 변경시켜서 저장한다.*/
     public CSVFileVo convertSaveRgx(String rgx, CSVFileVo csvFile);
-
+    
+    /* CSVFileVo에서 data를 Html Table String을 만들어 리턴한다.*/
     public String getHtmlTableString(CSVFileVo csvFile);
 }
 
 /**
  * @apiNote
  * @author  senshig
- * @date    2021.02.16         : 최초 작성 - CSV 불러오기 구현
- *          2021.02.17         : CSV 불러오기 수정, convertCSVToMatrix 구현
+ * @date    2021.02.16         : 최초 작성 - CSV파일체크, CSV 불러오기 구현
+ *          2021.02.17         : CSV 불러오기 수정, getDataMatrix 구현
  *          2021.02.18 ~ 19    : 엑셀로 내보내기한 CSV 파일 한글깨짐 관련한 파일 인코딩 문제 해결/ 파일 인코딩 알아내기
  *          2021.02.19         : 파일저장 구현 / CSVFileVo 수정
- *          2021.02.20         : 파일저장 이어쓰기 구현
+ *          2021.02.20         : 파일저장 이어쓰기 구현 , getDataMatrix 수정
  *                                CSV 불러오기 구분자(rgx) "," 가 아닐시 생기던 버그 수정
  *                               -> ex. 특수문자 "|" 로 구분되어 읽을시 line.split("|")가 아닌 line.split("\\|") or line.split("[|]") 로 읽어져야 한다;
  *                               -> rgx - String 타입을 Pattern 타입으로 변경하여 정확히 받도록 수정
@@ -267,7 +268,7 @@ public class CSVUtils implements CSVUtilsInterface {
    
      
         final int MAXROW = csv.getMaxRow() + appendData.size();
-        final Charset CHARSET = BaseFileUtils.findFileEncoding(file);
+        final Charset CHARSET = csv.getCharset();
         final String RGX = csv.getRgx();
 
         int maxCol = csv.getMaxCol();
@@ -291,7 +292,7 @@ public class CSVUtils implements CSVUtilsInterface {
                     tempCol++;
                 }       
                 if(tempCol > maxCol){
-                    maxCol += tempCol;
+                    maxCol = tempCol;
                 }
                 tempCol = 0;
                 bw.newLine();
