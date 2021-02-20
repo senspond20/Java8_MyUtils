@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -132,7 +133,7 @@ public class BaseFileUtils {
         return charset;
     }
     /**
-     * @apiNote  파일을 읽어서 utf8 로 변환해서 
+     * @apiNote  파일을 읽어서 utf8 로 변환해서 -> 테스트 실패
      * @param file        읽어올 file 객체
      * @param isOverWrite 원본파일에 덮어쓰며 저장할 것인지 새로운 파일생성으로 이름에-utf8을 붙여서 저장할것인지 여부
      * @return
@@ -174,7 +175,7 @@ public class BaseFileUtils {
      * @return
      * @throws IOException
      */
-    public static boolean fileSaveUsingLegarcy(File file, String data, Charset charset, boolean isAppend) throws IOException{
+    public static boolean fileSaveClassic(File file, String data, Charset charset, boolean isAppend) throws IOException{
         boolean isSucess = false;
         BufferedWriter bw = null;
         OutputStreamWriter osw = null;
@@ -208,7 +209,52 @@ public class BaseFileUtils {
         return isSucess;
     }
 
+    /**
+     * @apiNote                 : 파일저장 Classic 
+     * @param file              : file객체
+     * @param data              : 저장한 데이터 리스트
+     * @param charset           : charset
+     * @param isAppend          : 파일 이어쓰기 여부
+     * @return
+     * @throws IOException
+     */
+    public static boolean fileSaveClassic(File file, List<Object> data, Charset charset, boolean isAppend) throws IOException{
+        boolean isSucess = false;
+        BufferedWriter bw = null;
+        OutputStreamWriter osw = null;
+        FileOutputStream fos = null;
 
+        if(file !=null && !file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new IOException("잘못된 파일 경로입니다 -> 파일 생성 실패");
+            }
+        }
+        try{
+            fos = new FileOutputStream(file.getPath(), isAppend);
+            osw = new OutputStreamWriter(fos, charset);
+            bw =  new BufferedWriter(osw);
+
+            for(Object obj : data){
+                bw.append(obj.toString());
+                bw.newLine();
+            }
+
+        }catch(IOException e){
+            throw new IOException("파일 저장에 실패하였습니다.");
+        }finally{
+            try {
+                bw.close();
+                osw.close();
+                fos.close();
+                isSucess = true;
+            } catch (IOException e) {
+                throw new IOException("파일 저장후 파일IO객체를 close하는데 실패하였습니다.");
+            }
+        }
+        return isSucess;
+    }
     public static File fileRead(File file, Charset charset) throws IOException{
         if (!file.exists()) {
             throw new FileNotFoundException("해당 파일이 존재하지 않습니다.");
@@ -216,6 +262,8 @@ public class BaseFileUtils {
 
         return null;
     }
+
+
 
 
 }

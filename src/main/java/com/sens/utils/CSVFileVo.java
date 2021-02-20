@@ -8,6 +8,7 @@ import java.util.List;
 public class CSVFileVo {
     private File file;
     private Charset charset;
+    private String rgx;
     private int maxRow;
     private int maxCol;
     private boolean header;
@@ -21,6 +22,9 @@ public class CSVFileVo {
     }
     public Charset getCharset(){
         return this.charset;
+    }
+    public String getRgx(){
+        return this.rgx;
     }
     public int getMaxRow(){
         return this.maxRow;
@@ -39,6 +43,7 @@ public class CSVFileVo {
     private CSVFileVo(Builder builder) {
         this.file   = builder.file;
         this.charset = builder.charset;
+        this.rgx = builder.rgx;
         this.maxRow = builder.maxRow;
         this.maxCol = builder.maxCol;
         this.header = builder.header;
@@ -50,6 +55,7 @@ public class CSVFileVo {
         /* 필수없음/ all 선택 */
         private File file = null;
         private Charset charset = StandardCharsets.UTF_8;
+        private String rgx = ",";
         private int maxRow = 0;
         private int maxCol = 0;
         private boolean header = false;
@@ -62,6 +68,10 @@ public class CSVFileVo {
         public Builder file(File file) {
             this.file = file;
             return this;    
+        }
+        public Builder rgx(String rgx){
+            this.rgx = rgx;
+            return this;
         }
         public Builder charset(Charset charset){
             this.charset = charset;

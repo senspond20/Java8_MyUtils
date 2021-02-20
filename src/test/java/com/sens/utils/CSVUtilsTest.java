@@ -2,9 +2,14 @@ package com.sens.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,47 +19,169 @@ import org.junit.jupiter.api.Test;
  */
 public class CSVUtilsTest {
 
-    final String fileName = "korean2.csv";
-    final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
-    CSVUtils cs = null;
-    CSVFileVo csv = null;
+    // /CSVUtils cs = null;
+    //CSVFileVo csv = null;
     
     @BeforeEach
     void setup() throws IOException {
-        cs = CSVUtils.getInstance();
+        // cs = CSVUtils.getInstance();
     }
     /**
      * loadCSV 테스트 
      * @throws IOException
      */
-    @Test
-    void test_CSV읽어오기() throws IOException {
-       csv = cs.loadCSV(path, ",", true);
-       File file = csv.getFile();
 
-       // 파일 정보
-       System.out.printf("FileName [%s] %s\n",file.getName() ,file.getAbsolutePath());
-       System.out.printf("MaxRow[%d] MaxCol[%d]\n",  csv.getMaxRow(), csv.getMaxCol() );
-       // 해더정보
-       System.out.println("Header : " + Arrays.toString(csv.getHeader()));
-       // 데이터
-       System.out.println("Data : " + csv.getData().toString());
+    void print(CSVFileVo csv) throws IOException {
+        File file = csv.getFile();
+        System.out.printf("FileName [%s] %s\n",file.getName() ,file.getAbsolutePath());
+        // System.out.println("FileType : " +  Files.probeContentType(file.toPath()));
+        System.out.printf("fileCharset [%s]\n", csv.getCharset());
+        System.out.printf("rgx [%s]\n", csv.getRgx());
+        System.out.printf("MaxRow[%d] MaxCol[%d]\n",  csv.getMaxRow(), csv.getMaxCol() );
+        System.out.println("Header : " + csv.getHeader());      // 해더유무
+        System.out.println("Data : " + csv.getData().toString());     // 데이터
+    }
+    @Test
+    void test_CSV읽어오기1() throws IOException {
+
+       final String fileName = "korean2.csv";
+       final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
+
+       CSVUtils cs = CSVUtils.getInstance();
+       CSVFileVo csv = cs.loadCSV(path, ",", true);
+
+       // 파일 정보 출력
+       print(csv);
        
     }
 
     @Test
-    void test_CSV읽어오기8() throws IOException {
-       csv = cs.loadCSV8(path, ",", true);
+    void test_CSV읽어오기2() throws IOException {
+
+       final String fileName = "korean2.csv";
+       final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
+       CSVUtils cs = CSVUtils.getInstance();
+       CSVFileVo csv = cs.loadCSV(path, ",", true);
        File file = csv.getFile();
 
        // 파일 정보
-       System.out.printf("FileName [%s] %s\n",file.getName() ,file.getAbsolutePath());
-       System.out.printf("MaxRow[%d] MaxCol[%d]\n",  csv.getMaxRow(), csv.getMaxCol() );
-       // 해더정보
-       System.out.println("Header : " + Arrays.toString(csv.getHeader()));
-       // 데이터
-       System.out.println("Data : " + csv.getData().toString());
-       
+      // 파일 정보 출력
+       print(csv);
+
+       List<List<Object>> o = csv.getData();
+       System.out.println("======================");
+       System.out.printf("%s %s %s\n", o.get(0).get(0), o.get(0).get(1), o.get(0).get(2));
+  
+    }
+    @Test
+    void test_CSV저장() throws IOException {
+        final String fileName = "save.csv";
+        final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
+
+        CSVUtils cs = CSVUtils.getInstance();
+
+        List<List<Object>> data = new ArrayList<List<Object>>();
+        data.add(Arrays.asList("1 Head", "2 Head", "3 Head", "4 Head", "5 Head", "6 Head"));
+        data.add(Arrays.asList("가나다", "안녕", "가을", 1110, 123, 533));
+        data.add(Arrays.asList("Java", "C#", 1011, "Spring","안녕이"));
+        data.add(Arrays.asList("문자열", 1010, "서울시", "11AC"));
+        data.add(Arrays.asList(1.97, "가을이", "하늘이"));
+
+        // save2.csv 에다가 data를 구분자 | 로 저장하고
+        CSVFileVo csv = cs.saveCSV(path, StandardCharsets.UTF_8, "|" , data, true);
+ 
+        // 파일 정보 출력
+        print(csv);
+
+        List<List<Object>> o = csv.getData();
+        System.out.println("======================");
+        System.out.printf("%s %s %s\n", o.get(0).get(0), o.get(0).get(1), o.get(0).get(2));
+    }
+
+    @Test
+    void test_CSV읽어오기_다른_구분자의_경우() throws IOException {
+
+       final String fileName = "save.csv";
+       final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
+       CSVUtils cs = CSVUtils.getInstance();
+       CSVFileVo csv = cs.loadCSV(path, "|", true);
+      
+        // 파일 정보 출력
+        print(csv);
+      
+        List<List<Object>> o = csv.getData();
+        System.out.println("======================");
+        System.out.printf("%s %s %s\n", o.get(0).get(0), o.get(0).get(1), o.get(0).get(2));
+    }
+
+    @Test
+    void test_CSV저장_이어쓰기() throws IOException {
+
+        CSVUtils cs = CSVUtils.getInstance();
+        final String fileName = "save.csv";
+        final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
+
+   /*     List<List<Object>> data = new ArrayList<List<Object>>();
+        data.add(Arrays.asList("1 Head", "2 Head", "3 Head", "4 Head", "5 Head", "6 Head"));
+        data.add(Arrays.asList("가나다", "안녕", "가을", 1110, 123, 533));
+        data.add(Arrays.asList("Java", "C#", 1011, "Spring","안녕이"));
+        data.add(Arrays.asList("문자열", 1010, "서울시", "11AC"));
+        data.add(Arrays.asList(1.97, "가을이", "하늘이"));
+
+        // save2.csv 에다가 data를 구분자 | 로 저장하고
+        CSVFileVo csvFile = cs.saveCSV(path, StandardCharsets.UTF_8, "|" , data, true);*/
+
+
+        // save.csv 파일을 불러와서 데이터 이어쓰기
+        CSVFileVo csvFile = cs.loadCSV(path, "|", true);
+        List<List<Object>> appendData = new ArrayList<List<Object>>();
+        appendData.add(Arrays.asList("이어쓰기1", "안녕", "이어써", 1110, 123, 533));
+        appendData.add(Arrays.asList("Java", "C#", 1011, "Spring","안녕이"));
+
+       // save2.csv 에다가 appendData 를 이어쓰기
+        csvFile = cs.saveCSVAppend(csvFile, appendData);
+
+          
+        // 파일 정보 출력
+        print(csvFile);
+      
+        List<List<Object>> o = csvFile.getData();
+        System.out.println("======================");
+        System.out.printf("%s %s %s\n", o.get(0).get(0), o.get(0).get(1), o.get(0).get(2));
+    }
+
+
+    
+  
+
+    @Test
+    void test_CSV저장_엑셀바로열기한글() throws IOException {
+        final String fileName = "save_win.csv";
+        final Path path = Paths.get(System.getProperty("user.dir"), "src", "resources", "data", fileName);
+
+        List<List<Object>> data = new ArrayList<List<Object>>();
+        data.add(Arrays.asList("1 Head", "2 Head", "3 Head", "4 Head", "5 Head", "6 Head"));
+        data.add(Arrays.asList("가나다", "안녕", "가을", 1110, 123, 533));
+        data.add(Arrays.asList("Java", "C#", 1011, "Spring","안녕이"));
+        data.add(Arrays.asList("문자열", 1010, "서울시", "11AC"));
+        data.add(Arrays.asList(1.97, "가을이", "하늘이"));
+
+        CSVUtils cs = CSVUtils.getInstance();
+        // 윈도우용 엑셀에서 바로 열였을때 한글 안깨지게 Euc-kr
+        CSVFileVo csv = cs.saveCSV(path, Charset.forName("EUC-KR"), ",", data, true); 
+
+        File file = csv.getFile();
+ 
+        // 파일 정보
+        System.out.printf("FileName [%s] %s\n",file.getName() ,file.getAbsolutePath());
+        System.out.printf("fileCharset [%s]\n", csv.getCharset());
+        System.out.printf("rgx [%s]\n", csv.getRgx());
+        System.out.printf("MaxRow[%d] MaxCol[%d]\n",  csv.getMaxRow(), csv.getMaxCol() );
+        // 해더정보
+        System.out.println("Header : " + csv.getHeader());
+        // 데이터
+        System.out.println("Data : " + csv.getData().toString());
+
     }
 
 
