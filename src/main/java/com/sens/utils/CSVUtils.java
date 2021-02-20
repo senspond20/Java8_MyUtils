@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.sens.utils.CSVFileVo.Builder;
@@ -33,8 +34,8 @@ interface CSVUtilsInterface {
     /* CSV 파일을 읽어온다. -> CSVFileVo 에 담아 리턴 */
     public CSVFileVo loadCSV(Path path, String rgx, boolean isHeader) throws IOException;
  
-    /* CSV 파일 데이터를 2차원 배열로 변환하다. */
-    public Object[][] convertCSVToMatrix(CSVFileVo csvfile, boolean isHeader);
+    /* CSV 파일 데이터를 2차원 배열로 가져온다. */
+    public Object[][] getDataMatrix(CSVFileVo csvfile, boolean isHeader);
 
     /* CSV 파일 데이터를 저장한다 */
     public CSVFileVo saveCSV(Path path, Charset charset, String rgx, List<List<Object>> data, boolean isHeader) throws IOException;
@@ -42,12 +43,22 @@ interface CSVUtilsInterface {
      /* 기존 CSV 파일에 데이터를 이어서 저장한다 */
     public CSVFileVo saveCSVAppend(CSVFileVo csv, List<List<Object>> appendData) throws IOException;
 
+    public CSVFileVo convertSaveRgx(String rgx, CSVFileVo csvFile);
+
+    public String getHtmlTableString(CSVFileVo csvFile);
 }
 
 /**
  * @apiNote
  * @author  senshig
- * @date    2021.02.16 ~ 20
+ * @date    2021.02.16         : 최초 작성 - CSV 불러오기 구현
+ *          2021.02.17         : CSV 불러오기 수정, convertCSVToMatrix 구현
+ *          2021.02.18 ~ 19    : 엑셀로 내보내기한 CSV 파일 한글깨짐 관련한 파일 인코딩 문제 해결/ 파일 인코딩 알아내기
+ *          2021.02.19         : 파일저장 구현 / CSVFileVo 수정
+ *          2021.02.20         : 파일저장 이어쓰기 구현
+ *                                CSV 불러오기 구분자(rgx) "," 가 아닐시 생기던 버그 수정
+ *                               -> ex. 특수문자 "|" 로 구분되어 읽을시 line.split("|")가 아닌 line.split("\\|") or line.split("[|]") 로 읽어져야 한다;
+ *                               -> rgx - String 타입을 Pattern 타입으로 변경하여 정확히 받도록 수정
  */
 public class CSVUtils implements CSVUtilsInterface {
    
@@ -64,6 +75,11 @@ public class CSVUtils implements CSVUtilsInterface {
             }
             return instance;
         }
+    }
+    
+    public static void close(){
+        if(instance!=null)
+            instance = null;
     }
 
    /**@name    isCSVFileCheck
@@ -91,6 +107,7 @@ public class CSVUtils implements CSVUtilsInterface {
     @Override
     public CSVFileVo loadCSV(Path path, String rgx, boolean isHeader) throws IOException {
 
+        
         File file = new File(path.toUri());
         if (!file.exists()) {
             throw new FileNotFoundException("File Not Found!");
@@ -102,18 +119,18 @@ public class CSVUtils implements CSVUtilsInterface {
         Builder builder = new CSVFileVo.Builder();
         List<List<Object>> data = new ArrayList<List<Object>>();
  
+        Pattern pattern = Pattern.compile("[" + rgx + "]");
+        
         try ( // try ~ catch ~ resources 
-       
-            BufferedReader br = new BufferedReader(new FileReader(file, charset));) {
+        
+        BufferedReader br = new BufferedReader(new FileReader(file, charset));) {
             String line = "";
             int tempCol = 0;
             
             // BufferedReader 에서 데이터를 읽어오면서 최대 행과 열수를 계산하며 list에 담는다.
             while ((line = br.readLine()) != null) {
-
-                // "," 가 아닐시 정상적이지 않다.-> 수정 필요
-                Object curr[] = line.split(rgx);
                 
+                Object curr[] = line.split(pattern.toString());
                 tempCol = curr.length;
                 // 현재 열의 크기가 더 크면 maxCol에 담는다.
                 if (tempCol > maxCol) {
@@ -138,13 +155,12 @@ public class CSVUtils implements CSVUtilsInterface {
     }
 
     /**
-     * @name   convertCSVToMatrix
-     * @apiNote                  : CSV 파일을 읽어온다. 
+     * @name   getMatrix
      * @param  csvfile           : CSVFileVo 객체
      * @return Object[][]
      */
     @Override
-    public Object[][] convertCSVToMatrix(CSVFileVo csvfile, boolean isHeader) {
+    public Object[][] getDataMatrix(CSVFileVo csvfile, boolean isHeader) {
 
         // 행은 고정이고 열은 가변인 동적배열
         List<List<Object>> list = csvfile.getData();
@@ -154,7 +170,7 @@ public class CSVUtils implements CSVUtilsInterface {
         int i = isHeader ? 1 : 0;
  
         // 배열에 집어넣기
-        for (i = 0; i < array.length; i++) {
+        for (; i < array.length; i++) {
             array[i] = list.get(i).toArray();
         }
         return array;
@@ -162,8 +178,6 @@ public class CSVUtils implements CSVUtilsInterface {
     }
 
    
-    
-
     /**
      * @apiNote                   : CSV 파일로 저장한다.
      * @param path                : 파일경로
@@ -203,7 +217,7 @@ public class CSVUtils implements CSVUtilsInterface {
                 for(int c =0; c < row.size(); c++){
                     bw.append(row.get(c).toString());
                     if(c != row.size() -1){
-                        bw.append(rgx);       // 구분자
+                        bw.append(rgx.toString());       // 구분자
                     }
                     tempCol++;
                 }          
@@ -251,8 +265,9 @@ public class CSVUtils implements CSVUtilsInterface {
         OutputStreamWriter osw = null;
         FileOutputStream fos = null;
    
-        Builder builder = new CSVFileVo.Builder();
+     
         final int MAXROW = csv.getMaxRow() + appendData.size();
+        final Charset CHARSET = BaseFileUtils.findFileEncoding(file);
         final String RGX = csv.getRgx();
 
         int maxCol = csv.getMaxCol();
@@ -262,7 +277,7 @@ public class CSVUtils implements CSVUtilsInterface {
         }
         try{
             fos = new FileOutputStream(file.getPath(), true); // 이어쓰기
-            osw = new OutputStreamWriter(fos, BaseFileUtils.findFileEncoding(file));
+            osw = new OutputStreamWriter(fos, CHARSET);
             bw =  new BufferedWriter(osw);
 
             int tempCol = 0;
@@ -293,18 +308,25 @@ public class CSVUtils implements CSVUtilsInterface {
             }
         }
 
-        return  builder.file(file)
-                       .maxRow(MAXROW)
-                       .maxCol(maxCol)
-                       .data(data)
-                       .build();  
-
+        // CSVFileVo 정보 업데이트
+        csv.updateCSV(MAXROW, maxCol, data);
+        return csv;
     }
 
 
-     // CSVFileVo 를 불러와 구분자를 전부 변경시켜서 저장한다. 
-     public void convertSaveRgx(String rgx, CSVFileVo csvFile){
-
-        
+    // CSVFileVo 를 불러와 구분자를 전부 변경시켜서 저장한다. 
+    @Override
+    public CSVFileVo convertSaveRgx(String rgx, CSVFileVo csvFile) {
+        // TODO Auto-generated method stub
+        return null;
     }
+
+ // CSVFileVo 에서 데이터를 html Table 로 만들어 리턴한다. 
+    @Override
+    public String getHtmlTableString(CSVFileVo csvFile) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    
 }

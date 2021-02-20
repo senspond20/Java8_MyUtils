@@ -123,7 +123,7 @@ public class BaseFileUtils {
                 if (encoding != null) { 
                     charset = Charset.forName(encoding);
                 }else { 
-                    throw new RuntimeException("파일 Chaset Find에 실패하였습니다.");
+                    throw new RuntimeException("Chaset Find Fail!!");
                 } 
                 detector.reset();
                 fis.close();

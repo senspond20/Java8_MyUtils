@@ -11,7 +11,7 @@ public class CSVFileVo {
     private String rgx;
     private int maxRow;
     private int maxCol;
-    private boolean header;
+    private boolean isHeader;
     private List<List<Object>> data;
 
     public CSVFileVo(){}
@@ -33,10 +33,24 @@ public class CSVFileVo {
         return this.maxCol;
     }
     public boolean getHeader(){
-        return this.header;
+        return this.isHeader;
     }
     public List<List<Object>> getData(){
         return this.data;
+    }
+
+    /* setter */
+    public void setRgx(String rgx){
+        this.rgx = rgx;
+    }
+    public void setCharset(Charset charset){
+        this.charset = charset;
+    }
+    /* update */
+    public void updateCSV(int maxRow, int maxCol, List<List<Object>> data){
+        this.maxRow = maxRow;
+        this.maxCol = maxCol;
+        this.data = data;
     }
 
     /* builder 패턴 */
@@ -46,7 +60,7 @@ public class CSVFileVo {
         this.rgx = builder.rgx;
         this.maxRow = builder.maxRow;
         this.maxCol = builder.maxCol;
-        this.header = builder.header;
+        this.isHeader = builder.isHeader;
         this.data   = builder.data;
     }
   
@@ -58,7 +72,7 @@ public class CSVFileVo {
         private String rgx = ",";
         private int maxRow = 0;
         private int maxCol = 0;
-        private boolean header = false;
+        private boolean isHeader = false;
         private List<List<Object>> data = null;
 
         public Builder(){  }
@@ -86,8 +100,8 @@ public class CSVFileVo {
             return this;
         }
 
-        public Builder header(boolean header) {
-            this.header = header;
+        public Builder header(boolean isHeader) {
+            this.isHeader = isHeader;
             return this;
         }
         public Builder data(List<List<Object>> data) {
